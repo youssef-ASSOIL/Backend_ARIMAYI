@@ -57,14 +57,13 @@ AUTH_USER_MODEL = 'recruitment.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'recruitment_db',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'db',
+        'NAME': 'recruitment_db',  # nom de la base
+        'USER': 'postgres',        # utilisateur Postgres
+        'PASSWORD': 'admin',       # mot de passe
+        'HOST': 'db',              # très important : "db" (le nom du service docker)
         'PORT': '5432',
     }
 }
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
