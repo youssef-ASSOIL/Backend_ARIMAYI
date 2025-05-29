@@ -1,34 +1,39 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
-    class Role(models.TextChoices):
-        CANDIDATE = 'CANDIDATE', _('Candidate')
-        RECRUITER = 'RECRUITER', _('Recruiter')
-
-    role = models.CharField(
-        max_length=20,
-        choices=Role.choices,
-        default=Role.CANDIDATE
+    ROLE_CHOICES = (
+        ('candidat', 'Candidat'),
+        ('recruteur', 'Recruteur'),
     )
+    full_name = models.CharField(max_length=255, blank=True, null=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-class CandidateProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile',
-        primary_key=True
-    )
-    full_name = models.CharField(max_length=255)
+class Candidat(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='candidat_profile')
     phone = models.CharField(max_length=20, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)
-    resume = models.FileField(upload_to='resumes/', blank=True, null=True)
-    skills = models.TextField(blank=True, null=True)
+    cv_url = models.TextField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
     experience = models.TextField(blank=True, null=True)
     education = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.full_name
+        return self.user.username
+
+class Recruteur(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='recruteur_profile')
+    company_name = models.CharField(max_length=255)
+    company_description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.company_name
+
+class Candidature(models.Model):
+    candidat = models.ForeignKey(Candidat, on_delete=models.CASCADE)
+    recruteur = models.ForeignKey(Recruteur, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.candidat.user.username} → {self.recruteur.company_name}"

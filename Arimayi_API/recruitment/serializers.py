@@ -1,24 +1,26 @@
 from rest_framework import serializers
-from .models import CandidateProfile, User
+from .models import User, Candidat, Recruteur, Candidature
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'role']
-        read_only_fields = ['role']
+        fields = ['id', 'username', 'email', 'full_name', 'role']
 
-class CandidateProfileSerializer(serializers.ModelSerializer):
+class CandidatSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
-        model = CandidateProfile
+        model = Candidat
         fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']
 
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
+class RecruteurSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
 
-    def update(self, instance, validated_data):
-        validated_data.pop('user', None)
-        return super().update(instance, validated_data)
+    class Meta:
+        model = Recruteur
+        fields = '__all__'
+
+class CandidatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidature
+        fields = '__all__'

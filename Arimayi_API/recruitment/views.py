@@ -1,31 +1,19 @@
-from rest_framework import viewsets, mixins, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from .models import CandidateProfile
-from .serializers import CandidateProfileSerializer
-from .permissions import IsCandidate, IsRecruiter
+from rest_framework import viewsets, permissions
+from .models import User, Candidat, Recruteur, Candidature
+from .serializers import UserSerializer, CandidatSerializer, RecruteurSerializer, CandidatureSerializer
 
-class CandidateProfileViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
-    serializer_class = CandidateProfileSerializer
-    permission_classes = [IsAuthenticated]
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def get_queryset(self):
-        if self.request.user.role == 'CANDIDATE':
-            return CandidateProfile.objects.filter(user=self.request.user)
-        return CandidateProfile.objects.all()
+class CandidatViewSet(viewsets.ModelViewSet):
+    queryset = Candidat.objects.all()
+    serializer_class = CandidatSerializer
 
-    def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update']:
-            return [IsAuthenticated(), IsCandidate()]
-        elif self.action in ['list', 'retrieve']:
-            return [IsAuthenticated(), IsRecruiter()]
-        return super().get_permissions()
+class RecruteurViewSet(viewsets.ModelViewSet):
+    queryset = Recruteur.objects.all()
+    serializer_class = RecruteurSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+class CandidatureViewSet(viewsets.ModelViewSet):
+    queryset = Candidature.objects.all()
+    serializer_class = CandidatureSerializer
